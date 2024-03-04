@@ -1,0 +1,1624 @@
+.model small
+.186
+.stack 100h
+.data
+B 		db 	1024 DUP(?)
+A 		db 	'com.com',0
+C 		db 	'vivod.asm',0
+_AAS		db 	9,'aas',13,10,'$'
+_BTR		db	9,'btr',9,'$'
+rgstr		db	2 DUP (?), ', ','$'
+rgstr2ask 	db	1 DUP (?), '$'
+rgstr3ask 	db	1 DUP (?),'h',13,10,'$'
+rgstr3askin	db	1 DUP (?),'h','$'
+rgstraskWL	db	1 DUP (?), '$'
+rgstraskWR	db	1 DUP (?), '$'
+rgstr2		db	2 DUP (?),13,10,'$'
+skobkaleft	db	'[','$'
+skobkaright	db	']',', ', '$'
+rgstrfir	db	 '[', 1 DUP (?),'$'
+rgstrsec	db	1 DUP (?),'+', '$'
+rgstrright	db	2 DUP(?),13,10,'$'
+plus		db	'+', '$'
+zapyataya	db	', ', '$'
+WORD_PTR	db	'word ', 'ptr ', '$'
+.code
+start:
+	mov 	ax,@data
+	mov 	ds,ax
+	mov	es,ax
+
+	lea	dx,a	;открыть ком файл
+	mov	ax,3d00h
+	int	21h
+	
+	mov	bx,ax	; считать ком файл
+	mov	ax,3f00h
+	mov	cx,1024d
+	lea	dx,b
+	int	21h
+
+	mov	ax,3e00h 	; закрыть ком файл
+	int	21h
+	
+	lea	dx,c	;создать файл для записи ответа
+	mov	ax,3c00h
+	mov	cx,2
+	int	21h
+
+	lea	si,b
+;----------------------------------------------
+nachalo:
+	xor	ah,ah
+	lodsb
+	
+	cmp	al,03Fh
+	jz	VE
+
+	cmp	al, 0Fh
+	jnz	exit
+	lodsb		
+	cmp	al, 0B3h
+	jz	_BTRr
+	cmp	al, 0BAh
+	jz	_BTRr2
+ 
+exit:
+	mov	ah,4ch
+	int	21h
+VIVOD_ZNACH:
+	mov	ah,09h
+	int	21h
+	
+	mov	ah,40h
+	mov	bx,5
+	int	21h
+	ret
+;--------------------------------------------AAS
+VE:
+	lea	dx,_AAS
+	mov	cx,6
+	call	VIVOD_ZNACH
+	
+	jmp	nachalo
+
+;--------------------------------------------BTR
+_BTRr:
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+;--------------------------------
+	cmp	bh,0
+	jnz	check1
+	jmp	leftmod000
+	
+check1:
+	cmp	bh,1
+	jnz	check2
+	jmp	leftmod010
+
+check2:
+	cmp	bh,2
+	jnz	check3
+	jmp	leftmod010
+
+check3:
+	cmp	bh,3
+	jmp	b0
+
+;----------------------------------_BTRr2BA
+_BTRr2:
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+;-----------------------------------00
+	cmp	al, 0
+	jnz	___b1
+	lea	di,rgstr
+	mov 	ax,'xa'
+	stosw
+	jmp	postAska
+
+___b1:
+	cmp	al, 1
+	jnz	___b2
+	lea	di,rgstr
+	mov	ax,'xc'
+	stosw
+	jmp	postAska
+
+___b2:
+	cmp	al, 2
+	jnz	___b3
+	lea	di,rgstr
+	mov	ax,'xd'
+	stosw
+	jmp	postAska
+
+___b3:
+	cmp	al, 3
+	jnz	___b4
+	lea	di,rgstr
+	mov	ax,'xb'
+	stosw
+	jmp	postAska
+
+___b4:
+	cmp	al, 4
+	jnz	___b5
+	lea	di,rgstr
+	mov	ax,'ps'
+	stosw
+	jmp	postAska
+___b5:
+	cmp	al, 5
+	jnz	___b6
+	lea	di,rgstr
+	mov	ax,'pb'
+	stosw
+	jmp	postAska
+
+___b6:
+	cmp	al, 6
+	jnz	___b7
+	lea	di,rgstr
+	mov	ax,'is'
+	stosw
+	jmp	postAska
+
+___b7:
+	cmp	al, 7
+	;jnz	___b8
+	lea	di,rgstr
+	mov	ax,'id'
+	stosw
+	jmp	postAska
+;----------------------------------------regBTRB3
+b0:
+	cmp	al, 0
+	jnz	b1
+	lea	di,rgstr
+	mov 	ax,'xa'
+	stosw
+	jmp	dalee
+
+b1:
+	cmp	al, 1
+	jnz	b2
+	lea	di,rgstr
+	mov	ax,'xc'
+	stosw
+	jmp	dalee
+
+b2:
+	cmp	al, 2
+	jnz	b3
+	lea	di,rgstr
+	mov	ax,'xd'
+	stosw
+	jmp	dalee
+
+b3:
+	cmp	al, 3
+	jnz	b4
+	lea	di,rgstr
+	mov	ax,'xb'
+	stosw
+	jmp	dalee
+
+b4:
+	cmp	al, 4
+	jnz	b5
+	lea	di,rgstr
+	mov	ax,'ps'
+	stosw
+	jmp	dalee
+
+b5:
+	cmp	al, 5
+	jnz	b6
+	lea	di,rgstr
+	mov	ax,'pb'
+	stosw
+	jmp	dalee
+
+b6:
+	cmp	al, 6
+	jnz	b7
+	lea	di,rgstr
+	mov	ax,'is'
+	stosw
+	jmp	dalee
+
+b7:
+	cmp	al, 7
+	;jnz	b8
+	lea	di,rgstr
+	mov	ax,'id'
+	stosw
+	jmp	dalee
+
+;-----------------------------regleft000
+leftmod000:
+	cmp	al,0
+	jnz	leftmod001
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleemod00
+
+leftmod001:
+	cmp	al,1
+	jnz	leftmod002
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleemod00
+
+leftmod002:
+	cmp	al,2
+	jnz	leftmod003
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleemod00
+
+leftmod003:
+	cmp	al,3
+	jnz	leftmod004
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleemod00
+
+leftmod004:
+	cmp	al,4
+	jnz	leftmod005
+	lea	di,rgstrfir
+	mov	ax,'is'
+	stosw
+	jmp	daleemod00
+
+leftmod005:
+	cmp	al,5
+	jnz	leftmod006
+	lea	di,rgstrfir
+	mov	ax,'id'
+	stosw
+	jmp	daleemod00
+
+leftmod006:
+	cmp	al,7
+	;jnz	leftmod006
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	jmp	daleemod00
+
+;------------------------------------regleft010
+leftmod010:
+	cmp	al,0
+	jnz	leftmod011
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleemod01
+
+leftmod011:
+	cmp	al,1
+	jnz	leftmod012
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleemod01
+
+leftmod012:
+	cmp	al,2
+	jnz	leftmod013
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleemod01
+
+leftmod013:
+	cmp	al,3
+	jnz	leftmod014
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	mov	ax,'id'
+	stosw
+	jmp	daleemod01
+
+leftmod014:
+	cmp	al,4
+	jnz	leftmod015
+	lea	di,rgstrfir
+	mov	ax,'is'
+	stosw
+	jmp	daleemod01
+
+leftmod015:
+	cmp	al,5
+	jnz	leftmod016
+	lea	di,rgstrfir
+	mov	ax,'id'
+	stosw
+	jmp	daleemod01
+
+leftmod016:
+	cmp	al,6
+	jnz	leftmod017
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	jmp	daleemod01
+
+leftmod017:
+	cmp	al,7
+	;jnz	leftmod006
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	jmp	daleemod01
+
+;--------------------------------------daleemod01
+daleemod01:
+	pusha
+	lea	dx,_BTR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+
+	cmp	bl,0
+	jnz	rightmod011
+	lea	di,rgstrright
+	mov 	ax,'xa'
+	stosw
+	jmp	Askamem
+
+rightmod011:
+	cmp	bl,1
+	jnz	rightmod012
+	lea	di,rgstrright
+	mov 	ax,'xc'
+	stosw
+	jmp	Askamem
+
+rightmod012:
+	cmp	bl,2
+	jnz	rightmod013
+	lea	di,rgstrright
+	mov 	ax,'xd'
+	stosw
+	jmp	Askamem
+
+rightmod013:
+	cmp	bl,3
+	jnz	rightmod014
+	lea	di,rgstrright
+	mov 	ax,'xb'
+	stosw
+	jmp	Askamem
+
+rightmod014:
+	cmp	bl,4
+	jnz	rightmod015
+	lea	di,rgstrright
+	mov 	ax,'ps'
+	stosw
+	jmp	Askamem
+
+rightmod015:
+	cmp	bl,5
+	jnz	rightmod016
+	lea	di,rgstrright
+	mov 	ax,'pb'
+	stosw
+	jmp	Askamem
+
+rightmod016:
+	cmp	bl,6
+	jnz	rightmod017
+	lea	di,rgstrright
+	mov 	ax,'is'
+	stosw
+	jmp	Askamem
+
+rightmod017:
+	cmp	bl,7
+	;jnz	rightmod018
+	lea	di,rgstrright
+	mov 	ax,'id'
+	stosw
+	jmp	Askamem
+;--------------------------------
+Askamem:
+	
+	lodsb
+	mov	bl,al
+	shr	al,4
+	cmp	al,0
+	jnz	aska1mem
+	lea	di,rgstr2ask
+	mov 	ax,48
+	stosb
+	jmp	contmem
+
+aska1mem:
+	cmp	al,1
+	jnz	aska2mem
+	lea	di,rgstr2ask
+	mov 	ax,49
+	stosb
+	jmp	contmem
+
+aska2mem:
+	cmp	al,2
+	jnz	aska3mem
+	lea	di,rgstr2ask
+	mov 	ax,50
+	stosb
+	jmp	contmem
+
+aska3mem:
+	cmp	al,3
+	jnz	aska4mem
+	lea	di,rgstr2ask
+	mov 	ax,51
+	stosb
+	jmp	contmem
+
+aska4mem:
+	cmp	al,4
+	jnz	aska5mem
+	lea	di,rgstr2ask
+	mov 	bx,52
+	stosb
+	jmp	contmem
+
+aska5mem:
+	cmp	al,5
+	jnz	aska6mem
+	lea	di,rgstr2ask
+	mov 	ax,53
+	stosb
+	jmp	contmem
+
+aska6mem:
+	cmp	al,6
+	jnz	aska7mem
+	lea	di,rgstr2ask
+	mov 	ax,54
+	stosb
+	jmp	contmem
+
+aska7mem:
+	cmp	al,7
+	jnz	aska8mem
+	lea	di,rgstr2ask
+	mov 	ax,55
+	stosb
+	jmp	contmem
+
+aska8mem:
+	cmp	al,8
+	jnz	aska9mem
+	lea	di,rgstr2ask
+	mov 	ax,56
+	stosb
+	jmp	contmem
+
+aska9mem:
+	cmp	al,9
+	jnz	askaAmem
+	lea	di,rgstr2ask
+	mov 	ax,57
+	stosb
+	jmp	contmem
+
+askaAmem:
+	cmp	al,10
+	jnz	askaBmem
+	lea	di,rgstr2ask
+	mov 	ax,65
+	stosb
+	jmp	contmem
+
+askaBmem:
+	cmp	al,11
+	jnz	askaCmem
+	lea	di,rgstr2ask
+	mov 	ax,66
+	stosb
+	jmp	contmem
+
+askaCmem:
+	cmp	al,12
+	jnz	askaDmem
+	lea	di,rgstr2ask
+	mov 	ax,67
+	stosb
+	jmp	contmem
+
+askaDmem:
+	cmp	al,13
+	jnz	askaEmem
+	lea	di,rgstr2ask
+	mov 	ax,68
+	stosb
+	jmp	contmem
+
+askaEmem:
+	cmp	al,14
+	jnz	askaFmem
+	lea	di,rgstr2ask
+	mov 	ax,69
+	stosb
+	jmp	contmem
+
+askaFmem:
+	cmp	al,15
+	jnz	contmem
+	lea	di,rgstr2ask
+	mov 	ax,70
+	stosb
+	jmp	contmem
+;--------------------------------------contMEM
+contmem:
+	shl	bl,4
+	mov	al,bl
+	cmp	al,0
+	jnz	aska01mem
+	lea	di,rgstr3askin
+	mov 	ax,48
+	stosb
+	jmp	finishAskamem
+
+aska01mem:
+	cmp	al,16
+	jnz	aska02mem
+	lea	di,rgstr3askin
+	mov 	ax,49
+	stosb
+	jmp	finishAskamem
+
+aska02mem:
+	cmp	al,32
+	jnz	aska03mem
+	lea	di,rgstr3askin
+	mov 	ax,50
+	stosb
+	jmp	finishAskamem
+
+aska03mem:
+	cmp	al,48
+	jnz	aska04mem
+	lea	di,rgstr3askin
+	mov 	ax,51
+	stosb
+	jmp	finishAskamem
+
+aska04mem:
+	cmp	al,64
+	jnz	aska05mem
+	lea	di,rgstr3askin
+	mov 	ax,52
+	stosb
+	jmp	finishAskamem
+
+aska05mem:
+	cmp	al,80
+	jnz	aska06mem
+	lea	di,rgstr3askin
+	mov 	ax,53
+	stosb
+	jmp	finishAskamem
+
+aska06mem:
+	cmp	al,96
+	jnz	aska07mem
+	lea	di,rgstr3askin
+	mov 	ax,54
+	stosb
+	jmp	finishAskamem
+
+aska07mem:
+	cmp	al,112
+	jnz	aska08mem
+	lea	di,rgstr3askin
+	mov 	ax,55
+	stosb
+	jmp	finishAskamem
+
+aska08mem:
+	cmp	al,128
+	jnz	aska09mem
+	lea	di,rgstr3askin
+	mov 	ax,56
+	stosb
+	jmp	finishAskamem
+
+aska09mem:
+	cmp	al,144
+	jnz	aska0Amem
+	lea	di,rgstr3askin
+	mov 	ax,57
+	stosb
+	jmp	finishAskamem
+
+aska0Amem:
+	cmp	al,160
+	jnz	aska0Bmem
+	lea	di,rgstr3askin
+	mov 	ax,65
+	stosb
+	jmp	finishAskamem
+
+aska0Bmem:
+	cmp	al,176
+	jnz	aska0Cmem
+	lea	di,rgstr3askin
+	mov 	ax,66
+	stosb
+	jmp	finishAskamem
+
+aska0Cmem:
+	cmp	al,192
+	jnz	aska0Dmem
+	lea	di,rgstr3askin
+	mov 	ax,67
+	stosb
+	jmp	finishAskamem
+
+aska0Dmem:
+	cmp	al,208
+	jnz	aska0Emem
+	lea	di,rgstr3askin
+	mov 	ax,68
+	stosb
+	jmp	finishAskamem
+
+aska0Emem:
+	cmp	al,224
+	jnz	aska0Fmem
+	lea	di,rgstr3askin
+	mov 	ax,69
+	stosb
+	jmp	finishAskamem
+
+aska0Fmem:
+	cmp	al,240
+	lea	di,rgstr3askin
+	mov 	ax,70
+	stosb
+	jmp	finishAskamem
+
+;----------------------------------reg2B3
+dalee:	
+	pusha
+	lea	dx,_BTR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+	
+	cmp	bl,0
+	jnz	_b1
+	lea	di,rgstr2
+	mov 	ax,'xa'
+	stosw
+	jmp	dalee1
+
+_b1:
+	cmp	bl,1
+	jnz	_b2
+	lea	di,rgstr2
+	mov	ax,'xc'
+	stosw
+	jmp	dalee1
+
+_b2:
+	cmp	bl,2
+	jnz	_b3
+	lea	di,rgstr2
+	mov	ax,'xd'
+	stosw
+	jmp	dalee1
+
+_b3:
+	cmp	bl,3
+	jnz	_b4
+	lea	di,rgstr2
+	mov	ax,'xb'
+	stosw
+	jmp	dalee1
+
+_b4:
+	cmp	bl,4
+	jnz	_b5
+	lea	di,rgstr2
+	mov	ax,'ps'
+	stosw
+	jmp	dalee1
+
+_b5:
+	cmp	bl,5
+	jnz	_b6
+	lea	di,rgstr2
+	mov	ax,'pb'
+	stosw
+	jmp	dalee1
+
+_b6:
+	cmp	bl,6
+	jnz	_b7
+	lea	di,rgstr2
+	mov	ax,'is'
+	stosw
+	jmp	dalee1
+
+_b7:
+	cmp	bl,7
+	;jnz	_b8
+	lea	di,rgstr2
+	mov	ax,'id'
+	stosw
+	jmp	dalee1
+
+;--------------------------------------askaBA
+postAska:	
+	pusha
+	lea	dx,_BTR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+	
+	lodsb
+	mov	bl,al
+	shr	al,4
+	cmp	al,0
+	jnz	aska1
+	lea	di,rgstr2ask
+	mov 	ax,48
+	stosb
+	jmp	cont
+
+aska1:
+	cmp	al,1
+	jnz	aska2
+	lea	di,rgstr2ask
+	mov 	ax,49
+	stosb
+	jmp	cont
+
+aska2:
+	cmp	al,2
+	jnz	aska3
+	lea	di,rgstr2ask
+	mov 	ax,50
+	stosb
+	jmp	cont
+
+aska3:
+	cmp	al,3
+	jnz	aska4
+	lea	di,rgstr2ask
+	mov 	ax,51
+	stosb
+	jmp	cont
+
+aska4:
+	cmp	al,4
+	jnz	aska5
+	lea	di,rgstr2ask
+	mov 	bx,52
+	stosb
+	jmp	cont
+aska5:
+	cmp	al,5
+	jnz	aska6
+	lea	di,rgstr2ask
+	mov 	ax,53
+	stosb
+	jmp	cont
+aska6:
+	cmp	al,6
+	jnz	aska7
+	lea	di,rgstr2ask
+	mov 	ax,54
+	stosb
+	jmp	cont
+aska7:
+	cmp	al,7
+	jnz	aska8
+	lea	di,rgstr2ask
+	mov 	ax,55
+	stosb
+	jmp	cont
+aska8:
+	cmp	al,8
+	jnz	aska9
+	lea	di,rgstr2ask
+	mov 	ax,56
+	stosb
+	jmp	cont
+aska9:
+	cmp	al,9
+	jnz	askaA
+	lea	di,rgstr2ask
+	mov 	ax,57
+	stosb
+	jmp	cont
+askaA:
+	cmp	al,10
+	jnz	askaB
+	lea	di,rgstr2ask
+	mov 	ax,65
+	stosb
+	jmp	cont
+askaB:
+	cmp	al,11
+	jnz	askaC
+	lea	di,rgstr2ask
+	mov 	ax,66
+	stosb
+	jmp	cont
+askaC:
+	cmp	al,12
+	jnz	askaD
+	lea	di,rgstr2ask
+	mov 	ax,67
+	stosb
+	jmp	cont
+askaD:
+	cmp	al,13
+	jnz	askaE
+	lea	di,rgstr2ask
+	mov 	ax,68
+	stosb
+	jmp	cont
+askaE:
+	cmp	al,14
+	jnz	askaF
+	lea	di,rgstr2ask
+	mov 	ax,69
+	stosb
+	jmp	cont
+askaF:
+	cmp	al,15
+	jnz	cont
+	lea	di,rgstr2ask
+	mov 	ax,70
+	stosb
+	jmp	cont
+;----------------------------
+cont:
+	shl	bl,4
+	mov	al,bl
+	cmp	al,0
+	jnz	aska01
+	lea	di,rgstr3ask
+	mov 	ax,48
+	stosb
+	jmp	askaBA16
+;-------------------------
+aska01:
+	cmp	al,16
+	jnz	aska02
+	lea	di,rgstr3ask
+	mov 	ax,49
+	stosb
+	jmp	askaBA16
+aska02:
+	cmp	al,32
+	jnz	aska03
+	lea	di,rgstr3ask
+	mov 	ax,50
+	stosb
+	jmp	askaBA16
+aska03:
+	cmp	al,48
+	jnz	aska04
+	lea	di,rgstr3ask
+	mov 	ax,51
+	stosb
+	jmp	askaBA16
+aska04:
+	cmp	al,64
+	jnz	aska05
+	lea	di,rgstr3ask
+	mov 	ax,52
+	stosb
+	jmp	askaBA16
+aska05:
+	cmp	al,80
+	jnz	aska06
+	lea	di,rgstr3ask
+	mov 	ax,53
+	stosb
+	jmp	askaBA16
+aska06:
+	cmp	al,96
+	jnz	aska07
+	lea	di,rgstr3ask
+	mov 	ax,54
+	stosb
+	jmp	askaBA16
+aska07:
+	cmp	al,112
+	jnz	aska08
+	lea	di,rgstr3ask
+	mov 	ax,55
+	stosb
+	jmp	askaBA16
+aska08:
+	cmp	al,128
+	jnz	aska09
+	lea	di,rgstr3ask
+	mov 	ax,56
+	stosb
+	jmp	askaBA16
+aska09:
+	cmp	al,144
+	jnz	aska0A
+	lea	di,rgstr3ask
+	mov 	ax,57
+	stosb
+	jmp	askaBA16
+aska0A:
+	cmp	al,160
+	jnz	aska0B
+	lea	di,rgstr3ask
+	mov 	ax,65
+	stosb
+	jmp	askaBA16
+aska0B:
+	cmp	al,176
+	jnz	aska0C
+	lea	di,rgstr3ask
+	mov 	ax,66
+	stosb
+	jmp	askaBA16
+aska0C:
+	cmp	al,192
+	jnz	aska0D
+	lea	di,rgstr3ask
+	mov 	ax,67
+	stosb
+	jmp	askaBA16
+aska0D:
+	cmp	al,208
+	jnz	aska0E
+	lea	di,rgstr3ask
+	mov 	ax,68
+	stosb
+	jmp	askaBA16
+aska0E:
+	cmp	al,224
+	jnz	aska0F
+	lea	di,rgstr3ask
+	mov 	ax,69
+	stosb
+	jmp	askaBA16
+aska0F:
+	cmp	al,240
+	;jnz	cont
+	lea	di,rgstr3ask
+	mov 	ax,70
+	stosb
+	jmp	askaBA16
+
+
+
+;------------------------------------------post00
+daleemod00:
+	pusha
+	lea	dx,_BTR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+
+	cmp	bl,0
+	jnz	rightmod000
+	lea	di,rgstrright
+	mov 	ax,'xa'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump0
+	jmp	finish00withplus
+
+rightmod000:
+	cmp	bl,1
+	jnz	rightmod001
+	lea	di,rgstrright
+	mov 	ax,'xc'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump0
+	jmp	finish00withplus
+
+rightmod001:
+	cmp	bl,2
+	jnz	rightmod002
+	lea	di,rgstrright
+	mov 	ax,'xd'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump0
+	jmp	finish00withplus
+
+
+rightmod002:
+	cmp	bl,3
+	jnz	rightmod003
+	lea	di,rgstrright
+	mov 	ax,'xb'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump0
+	jmp	finish00withplus
+;---------------------------------------
+microjump0:
+	jmp	finish00withoutplus
+;---------------------------------------
+
+rightmod003:
+	cmp	bl,4
+	jnz	rightmod004
+	lea	di,rgstrright
+	mov 	ax,'ps'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump1
+	jmp	finish00withplus
+
+rightmod004:
+	cmp	bl,5
+	jnz	rightmod005
+	lea	di,rgstrright
+	mov 	ax,'pb'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump1
+	jmp	finish00withplus
+
+rightmod005:
+	cmp	bl,6
+	jnz	rightmod006
+	lea	di,rgstrright
+	mov 	ax,'is'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump1
+	jmp	finish00withplus
+
+rightmod006:
+	cmp	bl,7
+	;jnz	rightmod001
+	lea	di,rgstrright
+	mov 	ax,'id'
+	stosw
+	mov	al,[si-1]
+	and	al,4	
+	cmp	al,4
+	je	microjump1
+	jmp	finish00withplus
+
+microjump1:
+	jmp	finish00withoutplus
+
+
+
+
+;-------------------------------------------
+dalee1:	
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx, rgstr2
+	mov 	cx,4
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finish00withplus:
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+finish00withoutplus:
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+askaBA16:	
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finishAskamem:
+	mov	al,[si-2]
+	and	al,128
+	cmp	al,80h
+	je	contaski
+	mov	al,[si-2]
+	and	al,4	
+	cmp	al,4
+	je	finishAskamem1
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+contaski:
+	jmp	askamemcont
+
+finishAskamem1:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+;-----------------------------
+askamemcont:
+	lodsb
+	mov	bl,al
+	shr	al,4
+	cmp	al,0
+	jnz	askamemcont1
+	lea	di,rgstraskWL
+	mov 	ax,48
+	stosb
+	jmp	contW
+
+askamemcont1:
+	cmp	al,1
+	jnz	askamemcont2
+	lea	di,rgstraskWL
+	mov 	ax,49
+	stosb
+	jmp	contW
+
+askamemcont2:
+	cmp	al,2
+	jnz	askamemcont3
+	lea	di,rgstraskWL
+	mov 	ax,50
+	stosb
+	jmp	contW
+
+askamemcont3:
+	cmp	al,3
+	jnz	askamemcont4
+	lea	di,rgstraskWL
+	mov 	ax,51
+	stosb
+	jmp	contW
+
+askamemcont4:
+	cmp	al,4
+	jnz	askamemcont5
+	lea	di,rgstraskWL
+	mov 	bx,52
+	stosb
+	jmp	contW
+askamemcont5:
+	cmp	al,5
+	jnz	askamemcont6
+	lea	di,rgstraskWL
+	mov 	ax,53
+	stosb
+	jmp	contW
+askamemcont6:
+	cmp	al,6
+	jnz	askamemcont7
+	lea	di,rgstraskWL
+	mov 	ax,54
+	stosb
+	jmp	contW
+askamemcont7:
+	cmp	al,7
+	jnz	askamemcont8
+	lea	di,rgstraskWL
+	mov 	ax,55
+	stosb
+	jmp	contW
+askamemcont8:
+	cmp	al,8
+	jnz	askamemcont9
+	lea	di,rgstraskWL
+	mov 	ax,56
+	stosb
+	jmp	contW
+askamemcont9:
+	cmp	al,9
+	jnz	askamemcontA
+	lea	di,rgstraskWL
+	mov 	ax,57
+	stosb
+	jmp	contW
+askamemcontA:
+	cmp	al,10
+	jnz	askamemcontB
+	lea	di,rgstraskWL
+	mov 	ax,65
+	stosb
+	jmp	contW
+askamemcontB:
+	cmp	al,11
+	jnz	askamemcontC
+	lea	di,rgstraskWL
+	mov 	ax,66
+	stosb
+	jmp	contW
+askamemcontC:
+	cmp	al,12
+	jnz	askamemcontD
+	lea	di,rgstraskWL
+	mov 	ax,67
+	stosb
+	jmp	contW
+askamemcontD:
+	cmp	al,13
+	jnz	askamemcontE
+	lea	di,rgstraskWL
+	mov 	ax,68
+	stosb
+	jmp	contW
+askamemcontE:
+	cmp	al,14
+	jnz	askamemcontF
+	lea	di,rgstraskWL
+	mov 	ax,69
+	stosb
+	jmp	contW
+askamemcontF:
+	cmp	al,15
+	jnz	contW
+	lea	di,rgstraskWL
+	mov 	ax,70
+	stosb
+	jmp	contW
+;----------------------------
+contW:
+	shl	bl,4
+	mov	al,bl
+	cmp	al,0
+	jnz	askamemcont01
+	lea	di,rgstraskWR
+	mov 	ax,48
+	stosb
+	jmp	finishAskamemW
+
+askamemcont01:
+	cmp	al,16
+	jnz	askamemcont02
+	lea	di,rgstraskWR
+	mov 	ax,49
+	stosb
+	jmp	finishAskamemW
+askamemcont02:
+	cmp	al,32
+	jnz	askamemcont03
+	lea	di,rgstraskWR
+	mov 	ax,50
+	stosb
+	jmp	finishAskamemW
+askamemcont03:
+	cmp	al,48
+	jnz	askamemcont04
+	lea	di,rgstraskWR
+	mov 	ax,51
+	stosb
+	jmp	finishAskamemW
+askamemcont04:
+	cmp	al,64
+	jnz	askamemcont05
+	lea	di,rgstraskWR
+	mov 	ax,52
+	stosb
+	jmp	finishAskamemW
+askamemcont05:
+	cmp	al,80
+	jnz	askamemcont06
+	lea	di,rgstraskWR
+	mov 	ax,53
+	stosb
+	jmp	finishAskamemW
+askamemcont06:
+	cmp	al,96
+	jnz	askamemcont07
+	lea	di,rgstraskWR
+	mov 	ax,54
+	stosb
+	jmp	finishAskamemW
+askamemcont07:
+	cmp	al,112
+	jnz	askamemcont08
+	lea	di,rgstraskWR
+	mov 	ax,55
+	stosb
+	jmp	finishAskamemW
+askamemcont08:
+	cmp	al,128
+	jnz	askamemcont09
+	lea	di,rgstraskWR
+	mov 	ax,56
+	stosb
+	jmp	finishAskamemW
+askamemcont09:
+	cmp	al,144
+	jnz	askamemcont0A
+	lea	di,rgstraskWR
+	mov 	ax,57
+	stosb
+	jmp	finishAskamemW
+askamemcont0A:
+	cmp	al,160
+	jnz	askamemcont0B
+	lea	di,rgstraskWR
+	mov 	ax,65
+	stosb
+	jmp	finishAskamemW
+askamemcont0B:
+	cmp	al,176
+	jnz	askamemcont0C
+	lea	di,rgstraskWR
+	mov 	ax,66
+	stosb
+	jmp	finishAskamemW
+askamemcont0C:
+	cmp	al,192
+	jnz	askamemcont0D
+	lea	di,rgstraskWR
+	mov 	ax,67
+	stosb
+	jmp	finishAskamemW
+askamemcont0D:
+	cmp	al,208
+	jnz	askamemcont0E
+	lea	di,rgstraskWR
+	mov 	ax,68
+	stosb
+	jmp	finishAskamemW
+askamemcont0E:
+	cmp	al,224
+	jnz	askamemcont0F
+	lea	di,rgstraskWR
+	mov 	ax,69
+	stosb
+	jmp	finishAskamemW
+askamemcont0F:
+	cmp	al,240
+	;jnz	cont
+	lea	di,rgstraskWR
+	mov 	ax,70
+	stosb
+	jmp	finishAskamemW
+
+finishAskamemW:
+	mov	al,[si-3]
+	and	al,4
+	cmp	al,4
+	je	finishAskamemW1
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+	
+finishAskamemW1:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,rgstrright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+end start
