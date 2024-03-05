@@ -10,6 +10,7 @@ _BTR		db	9,'btr',9,'$'
 rgstr		db	2 DUP (?), ', ','$'
 rgstr2ask 	db	1 DUP (?), '$'
 rgstr3ask 	db	1 DUP (?),'h',13,10,'$'
+rgstr2askin 	db	1 DUP (?), '$'
 rgstr3askin	db	1 DUP (?),'h','$'
 rgstraskWL	db	1 DUP (?), '$'
 rgstraskWR	db	1 DUP (?), '$'
@@ -133,7 +134,28 @@ _BTRr2:
 	shl	al,5
 	shr	al,5
 	and 	al,7
+
+
+	cmp	bh,0
+	jnz	check11
+	jmp	leftmod010
+
+check11:	
+	cmp	bh,1
+	jnz	check12
+	jmp	leftmod010
+
+check12:
+	cmp	bh,2
+	jnz	check13
+	jmp	leftmod010
+
+check13:
+	cmp	bh,3
+	;je	check14
+	jmp	___b0
 ;-----------------------------------00
+___b0:
 	cmp	al, 0
 	jnz	___b1
 	lea	di,rgstr
@@ -369,6 +391,7 @@ leftmod013:
 	lea	di,rgstrfir
 	mov	ax,'pb'
 	stosw
+	lea	di,rgstrsec
 	mov	ax,'id'
 	stosw
 	jmp	daleemod01
@@ -413,12 +436,24 @@ daleemod01:
 	call	VIVOD_ZNACH
 	popa
 
+	mov	al,[si-2]
+	cmp	al,0BAh
+	je	metka
 	cmp	bl,0
 	jnz	rightmod011
 	lea	di,rgstrright
 	mov 	ax,'xa'
 	stosw
 	jmp	Askamem
+	
+metka:
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	je	Askamem
+	cmp	al,2
+	je	Askamem
+	jmp	postAska1
 
 rightmod011:
 	cmp	bl,1
@@ -477,13 +512,12 @@ rightmod017:
 	jmp	Askamem
 ;--------------------------------
 Askamem:
-	
 	lodsb
 	mov	bl,al
 	shr	al,4
 	cmp	al,0
 	jnz	aska1mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,48
 	stosb
 	jmp	contmem
@@ -491,7 +525,7 @@ Askamem:
 aska1mem:
 	cmp	al,1
 	jnz	aska2mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,49
 	stosb
 	jmp	contmem
@@ -499,7 +533,7 @@ aska1mem:
 aska2mem:
 	cmp	al,2
 	jnz	aska3mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,50
 	stosb
 	jmp	contmem
@@ -507,7 +541,7 @@ aska2mem:
 aska3mem:
 	cmp	al,3
 	jnz	aska4mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,51
 	stosb
 	jmp	contmem
@@ -515,7 +549,7 @@ aska3mem:
 aska4mem:
 	cmp	al,4
 	jnz	aska5mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	bx,52
 	stosb
 	jmp	contmem
@@ -523,7 +557,7 @@ aska4mem:
 aska5mem:
 	cmp	al,5
 	jnz	aska6mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,53
 	stosb
 	jmp	contmem
@@ -531,7 +565,7 @@ aska5mem:
 aska6mem:
 	cmp	al,6
 	jnz	aska7mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,54
 	stosb
 	jmp	contmem
@@ -539,7 +573,7 @@ aska6mem:
 aska7mem:
 	cmp	al,7
 	jnz	aska8mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,55
 	stosb
 	jmp	contmem
@@ -547,7 +581,7 @@ aska7mem:
 aska8mem:
 	cmp	al,8
 	jnz	aska9mem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,56
 	stosb
 	jmp	contmem
@@ -555,7 +589,7 @@ aska8mem:
 aska9mem:
 	cmp	al,9
 	jnz	askaAmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,57
 	stosb
 	jmp	contmem
@@ -563,7 +597,7 @@ aska9mem:
 askaAmem:
 	cmp	al,10
 	jnz	askaBmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,65
 	stosb
 	jmp	contmem
@@ -571,7 +605,7 @@ askaAmem:
 askaBmem:
 	cmp	al,11
 	jnz	askaCmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,66
 	stosb
 	jmp	contmem
@@ -579,7 +613,7 @@ askaBmem:
 askaCmem:
 	cmp	al,12
 	jnz	askaDmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,67
 	stosb
 	jmp	contmem
@@ -587,7 +621,7 @@ askaCmem:
 askaDmem:
 	cmp	al,13
 	jnz	askaEmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,68
 	stosb
 	jmp	contmem
@@ -595,7 +629,7 @@ askaDmem:
 askaEmem:
 	cmp	al,14
 	jnz	askaFmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,69
 	stosb
 	jmp	contmem
@@ -603,7 +637,7 @@ askaEmem:
 askaFmem:
 	cmp	al,15
 	jnz	contmem
-	lea	di,rgstr2ask
+	lea	di,rgstr2askin
 	mov 	ax,70
 	stosb
 	jmp	contmem
@@ -815,7 +849,9 @@ postAska:
 	mov	cx,5
 	call	VIVOD_ZNACH
 	popa
-	
+	jmp	postAska1
+
+postAska1:	
 	lodsb
 	mov	bl,al
 	shr	al,4
@@ -1178,6 +1214,9 @@ dalee1:
 	jmp	nachalo
 
 finish00withplus:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -1199,6 +1238,9 @@ finish00withplus:
 	jmp	nachalo
 
 finish00withoutplus:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -1213,7 +1255,27 @@ finish00withoutplus:
 	call	VIVOD_ZNACH	
 	jmp	nachalo
 
-askaBA16:	
+askaBA16:
+	mov	al,[si-4]
+	cmp	al,0BAh
+	je	contaskaBA16
+	shr	al,6
+	cmp	al,1
+	je	returnAska8
+	cmp	al,2
+	je	returnAska16
+contaskaBA16:
+	mov	al,[si-3]
+	shr	al,6
+	cmp	al,1
+	je	returnAska8
+	mov	al,[si-2]
+	shr	al,6
+	cmp	al,0
+	je	aska000mod
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
 	lea	dx,rgstr
 	mov	cx,4
 	call	VIVOD_ZNACH
@@ -1224,8 +1286,73 @@ askaBA16:
 	mov 	cx,3
 	call 	VIVOD_ZNACH
 	jmp	nachalo
+;----------------------------------16bitAsk
+returnAska8:
+	jmp	askaBA1601
+;----------------------------------32bitAsk
+returnAska16:
+	jmp	finishAskamemW2
+
+aska000mod:
+	mov	al,[si-2]
+	and	al,4
+	cmp	al,4
+	je	aska001mod
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+aska001mod:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
 
 finishAskamem:
+	mov	al,[si-2]
+	shr	al,6
+	cmp	al,2
+	je	contaski
+	mov	al,[si-3]
+	cmp	al,0BAh
+	je	return
 	mov	al,[si-2]
 	and	al,128
 	cmp	al,80h
@@ -1252,7 +1379,7 @@ finishAskamem:
 	lea	dx,plus
 	mov	cx,1
 	call	VIVOD_ZNACH
-	lea 	dx,rgstr2ask
+	lea 	dx,rgstr2askin
 	mov 	cx,1
 	call	VIVOD_ZNACH
 	lea 	dx,rgstr3askin
@@ -1265,6 +1392,9 @@ finishAskamem:
 	mov	cx,3
 	call	VIVOD_ZNACH	
 	jmp	nachalo
+
+return:
+	jmp	postAska1
 
 contaski:
 	jmp	askamemcont
@@ -1282,7 +1412,7 @@ finishAskamem1:
 	lea	dx,plus
 	mov	cx,1
 	call	VIVOD_ZNACH
-	lea 	dx,rgstr2ask
+	lea 	dx,rgstr2askin
 	mov 	cx,1
 	call	VIVOD_ZNACH
 	lea 	dx,rgstr3askin
@@ -1295,7 +1425,77 @@ finishAskamem1:
 	mov	cx,3
 	call	VIVOD_ZNACH	
 	jmp	nachalo
-;-----------------------------
+
+askaBA1601:
+	mov	al,[si-3]
+	and	al,4
+	cmp	al,4
+	je	askaBA1602
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+askaBA1602:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+;------------------------------------------------------------------
 askamemcont:
 	lodsb
 	mov	bl,al
@@ -1532,11 +1732,18 @@ askamemcont0F:
 	stosb
 	jmp	finishAskamemW
 
+;-------------------------------B301ASK
 finishAskamemW:
+	mov	al,[si-4]
+	cmp	al,0BAh
+	je	returnW
+;-------------------------------JUMPifBTRBA
 	mov	al,[si-3]
+	mov	ah,al
 	and	al,4
 	cmp	al,4
 	je	finishAskamemW1
+;-------------------------------JUMPifISKL
 	lea	dx,WORD_PTR
 	mov	cx,9
 	call	VIVOD_ZNACH
@@ -1561,11 +1768,11 @@ finishAskamemW:
 	lea 	dx,rgstraskWR
 	mov 	cx,1
 	call	VIVOD_ZNACH
-	lea 	dx,rgstr2ask
+	lea 	dx,rgstr2askin
 	mov 	cx,1
 	call	VIVOD_ZNACH
 	lea 	dx,rgstr3askin
-	mov 	cx,2
+	mov 	cx,1
 	call	VIVOD_ZNACH
 	lea	dx,skobkaright
 	mov	cx,3
@@ -1574,7 +1781,10 @@ finishAskamemW:
 	mov	cx,3
 	call	VIVOD_ZNACH	
 	jmp	nachalo
-	
+;------------------------------
+returnW:
+	jmp	postAska1
+;-------------------------------B301ASKiskl
 finishAskamemW1:
 	lea	dx,WORD_PTR
 	mov	cx,9
@@ -1594,7 +1804,7 @@ finishAskamemW1:
 	lea 	dx,rgstraskWR
 	mov 	cx,1
 	call	VIVOD_ZNACH
-	lea 	dx,rgstr2ask
+	lea 	dx,rgstr2askin
 	mov 	cx,1
 	call	VIVOD_ZNACH
 	lea 	dx,rgstr3askin
@@ -1607,6 +1817,91 @@ finishAskamemW1:
 	mov	cx,3
 	call	VIVOD_ZNACH	
 	jmp	nachalo
+
+;-------------------------------BA01ASK
+finishAskamemW2:
+	mov	al,[si-4]
+	mov	ah,al
+	and	al,4
+	cmp	al,4
+	je	finishAskamemW3
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+finishAskamemW3:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
 	
 	
 
