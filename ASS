@@ -1,4 +1,4 @@
-.model small
+ .model small
 .186
 .stack 100h
 .data
@@ -7,6 +7,7 @@ A 		db 	'com.com',0
 C 		db 	'vivod.asm',0
 _AAS		db 	9,'aas',13,10,'$'
 _BTR		db	9,'btr',9,'$'
+_ROR		db	9,'ror',9,'$'
 rgstr		db	2 DUP (?), ', ','$'
 rgstr2ask 	db	1 DUP (?), '$'
 rgstr3ask 	db	1 DUP (?),'h',13,10,'$'
@@ -21,7 +22,8 @@ rgstrfir	db	 '[', 1 DUP (?),'$'
 rgstrsec	db	1 DUP (?),'+', '$'
 rgstrright	db	2 DUP(?),13,10,'$'
 plus		db	'+', '$'
-zapyataya	db	', ', '$'
+edin		db	'1', 13,10, '$'
+BYTE_PTR	db	'byte ', 'ptr ', '$'
 WORD_PTR	db	'word ', 'ptr ', '$'
 .code
 start:
@@ -54,19 +56,44 @@ nachalo:
 	lodsb
 	
 	cmp	al,03Fh
-	jz	VE
+	jz	AASs
+
+	cmp	al, 0D0h
+	jz	microROR
+
+	cmp	al, 0D1h
+	jz	microROR
+
+	cmp	al, 0D2h
+	jz	microROR
+
+	cmp	al, 0D3h
+	jz	microROR
+
+	cmp	al, 0C1h
+	jz	microROR
+
+	cmp	al, 0C2h
+	jz	microROR
 
 	cmp	al, 0Fh
 	jnz	exit
-	lodsb		
-	cmp	al, 0B3h
-	jz	_BTRr
+	lodsb
+
 	cmp	al, 0BAh
 	jz	_BTRr2
- 
+	
+	cmp	al, 0B3h
+	jz	_BTRr
+	jmp	exit
+
+microROR:
+	jmp	_RORr
+			
 exit:
 	mov	ah,4ch
 	int	21h
+
 VIVOD_ZNACH:
 	mov	ah,09h
 	int	21h
@@ -76,7 +103,7 @@ VIVOD_ZNACH:
 	int	21h
 	ret
 ;--------------------------------------------AAS
-VE:
+AASs:
 	lea	dx,_AAS
 	mov	cx,6
 	call	VIVOD_ZNACH
@@ -135,7 +162,7 @@ _BTRr2:
 	shr	al,5
 	and 	al,7
 
-
+;----------------------------------
 	cmp	bh,0
 	jnz	check11
 	jmp	leftmod010
@@ -154,7 +181,11 @@ check13:
 	cmp	bh,3
 	;je	check14
 	jmp	___b0
+
 ;-----------------------------------00
+
+
+;-----------------------------------------
 ___b0:
 	cmp	al, 0
 	jnz	___b1
@@ -1624,7 +1655,7 @@ contW:
 	lea	di,rgstraskWR
 	mov 	ax,48
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 
 askamemcont01:
 	cmp	al,16
@@ -1632,105 +1663,136 @@ askamemcont01:
 	lea	di,rgstraskWR
 	mov 	ax,49
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont02:
 	cmp	al,32
 	jnz	askamemcont03
 	lea	di,rgstraskWR
 	mov 	ax,50
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont03:
 	cmp	al,48
 	jnz	askamemcont04
 	lea	di,rgstraskWR
 	mov 	ax,51
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont04:
 	cmp	al,64
 	jnz	askamemcont05
 	lea	di,rgstraskWR
 	mov 	ax,52
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont05:
 	cmp	al,80
 	jnz	askamemcont06
 	lea	di,rgstraskWR
 	mov 	ax,53
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont06:
 	cmp	al,96
 	jnz	askamemcont07
 	lea	di,rgstraskWR
 	mov 	ax,54
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont07:
 	cmp	al,112
 	jnz	askamemcont08
 	lea	di,rgstraskWR
 	mov 	ax,55
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont08:
 	cmp	al,128
 	jnz	askamemcont09
 	lea	di,rgstraskWR
 	mov 	ax,56
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont09:
 	cmp	al,144
 	jnz	askamemcont0A
 	lea	di,rgstraskWR
 	mov 	ax,57
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0A:
 	cmp	al,160
 	jnz	askamemcont0B
 	lea	di,rgstraskWR
 	mov 	ax,65
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0B:
 	cmp	al,176
 	jnz	askamemcont0C
 	lea	di,rgstraskWR
 	mov 	ax,66
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0C:
 	cmp	al,192
 	jnz	askamemcont0D
 	lea	di,rgstraskWR
 	mov 	ax,67
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0D:
 	cmp	al,208
 	jnz	askamemcont0E
 	lea	di,rgstraskWR
 	mov 	ax,68
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0E:
 	cmp	al,224
 	jnz	askamemcont0F
 	lea	di,rgstraskWR
 	mov 	ax,69
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
 askamemcont0F:
 	cmp	al,240
 	;jnz	cont
 	lea	di,rgstraskWR
 	mov 	ax,70
 	stosb
-	jmp	finishAskamemW
+	jmp	proverka
+
+;-------------------------------
+proverka:
+	mov	al,[si-4]
+	cmp	al,0D0h
+	je	D0ASKAW
+	;cmp	al,D1
+	;je	D0ASKAW
+	;cmp	al,D2
+	;je	D0ASKAW
+	;cmp	al,D3
+	;je	D0ASKAW
+	;cmp	al,C0
+	;je	D0ASKAW
+	;cmp	al,C1
+	;je	D0ASKAW
+	jmp	finishAskamemWROR_D0
+
+;-------------------------------	
+D0ASKAW:
+	jmp	finishAskamemWROR_D0
+
+;D1ASKAW
+
+;D2ASKAW
+
+;D3ASKAW
+
+;C0ASKAW
+
+;C1ASKAW
 
 ;-------------------------------B301ASK
 finishAskamemW:
@@ -1902,18 +1964,1047 @@ finishAskamemW3:
 	call	VIVOD_ZNACH	
 	jmp	nachalo
 
+;---------------------------------BYTEROR1
+_RORr:
+	cmp	al,0D0H
+	jnz	_ROR1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	checkROR
+	jmp	leftmod000ROR
 	
+checkROR:
+	cmp	bh,1
+	jnz	checkROR1
+	jmp	leftmod010ROR
+
+checkROR1:
+	cmp	bh,2
+	jnz	checkROR2
+	jmp	leftmod010ROR
+
+checkROR2:
+	cmp	bh,3
+	jmp	leftmod110ROR
+;---------------------------------WORDROR1
+_ROR1:
+	cmp	al, 0D1h
+	jnz	_ROR2
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	check1ROR1
+	jmp	leftmod000ROR
 	
+check1ROR1:
+	cmp	bh,1
+	jnz	check1ROR2
+	;jmp	leftmod010
+
+check1ROR2:
+	cmp	bh,2
+	jnz	check1ROR3
+	;jmp	leftmod010
+
+check1ROR3:
+	cmp	bh,3
+	jmp	leftmod110RORax
+
+;------------------------------
+_ROR2:
+	cmp	al, 0D2h
+	jnz	_ROR3
+
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	check2ROR1
+	;jmp	leftmod000
+
+check2ROR1:
+	cmp	bh,1
+	jnz	check2ROR2
+	;jmp	leftmod010
+
+check2ROR2:
+	cmp	bh,2
+	jnz	check2ROR3
+	;jmp	leftmod010
+
+check2ROR3:
+	cmp	bh,3
+	;jmp	b0
+
+;-----------------------
+_ROR3:
+	cmp	al, 0D3h
+	jnz	_ROR4
+
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	check3ROR1
+	;jmp	leftmod000
+
+check3ROR1:
+	cmp	bh,1
+	jnz	check3ROR2
+	;jmp	leftmod010
+
+check3ROR2:
+	cmp	bh,2
+	jnz	check3ROR3
+	;jmp	leftmod010
+
+check3ROR3:
+	cmp	bh,3
+	;jmp	b0
+	;jmp	b0
+
+;---------------------------
+_ROR4:
+	cmp	al, 0C1h
+	jnz	_ROR5
+
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	check4ROR1
+	;jmp	leftmod000
+
+check4ROR1:
+	cmp	bh,1
+	jnz	check4ROR2
+	;jmp	leftmod010
+
+check4ROR2:
+	cmp	bh,2
+	jnz	check4ROR3
+	;jmp	leftmod010
+
+check4ROR3:
+	cmp	bh,3
+	;jmp	b0
+
+;-------------------------
+_ROR5:
+
+	sar	al,1
+	rcl	ah,1
+
+	lodsb
+	mov	bh,al
+	mov	bl,al
+	shr	bh,6 
+	and	bh,7
+	shl	bl,2
+	shr	bl,5
+	and	bl,7
+	shl	al,5
+	shr	al,5
+	and 	al,7
+
+	cmp	bh,0
+	jnz	check5ROR1
+	;jmp	leftmod000
+
+check5ROR1:
+	cmp	bh,1
+	jnz	check5ROR2
+	;jmp	leftmod010
+
+check5ROR2:
+	cmp	bh,2
+	jnz	check5ROR3
+	;jmp	leftmod010
+
+check5ROR3:
+	cmp	bh,3
+	;jmp	b0
+
+;-----------------------------------
+leftmod000ROR:
+	cmp	al,0
+	jnz	leftmod001ROR
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod001ROR:
+	cmp	al,1
+	jnz	leftmod002ROR
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod002ROR:
+	cmp	al,2
+	jnz	leftmod003ROR
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod003ROR:
+	cmp	al,3
+	jnz	leftmod004ROR
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod004ROR:
+	cmp	al,4
+	jnz	leftmod005ROR
+	lea	di,rgstrfir
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod005ROR:
+	cmp	al,5
+	jnz	leftmod006ROR
+	lea	di,rgstrfir
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod006ROR:
+	cmp	al,7
+	;jnz	leftmod006
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	jmp	daleeROR00
+;-------------------------------
+leftmod010ROR:
+	cmp	al,0
+	jnz	leftmod011ROR
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod011ROR:
+	cmp	al,1
+	jnz	leftmod012ROR
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod012ROR:
+	cmp	al,2
+	jnz	leftmod013ROR
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod013ROR:
+	cmp	al,3
+	jnz	leftmod014ROR
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	lea	di,rgstrsec
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod014ROR:
+	cmp	al,4
+	jnz	leftmod015ROR
+	lea	di,rgstrfir
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR00
+
+leftmod015ROR:
+	cmp	al,5
+	jnz	leftmod016ROR
+	lea	di,rgstrfir
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR00
+
+leftmod016ROR:
+	cmp	al,6
+	jnz	leftmod017ROR
+	lea	di,rgstrfir
+	mov	ax,'pb'
+	stosw
+	jmp	daleeROR00
+
+leftmod017ROR:
+	cmp	al,7
+	;jnz	leftmod006
+	lea	di,rgstrfir
+	mov	ax,'xb'
+	stosw
+	jmp	daleeROR00
 
 
+;---------------------------
+leftmod110ROR:
+	cmp	al, 0
+	jnz	leftmod111ROR
+	lea	di,rgstr
+	mov 	ax,'la'
+	stosw
+	jmp	daleeROR11
 
+leftmod111ROR:
+	cmp	al, 1
+	jnz	leftmod112ROR
+	lea	di,rgstr
+	mov	ax,'lc'
+	stosw
+	jmp	daleeROR11
 
+leftmod112ROR:
+	cmp	al, 2
+	jnz	leftmod113ROR
+	lea	di,rgstr
+	mov	ax,'ld'
+	stosw
+	jmp	daleeROR11
 
+leftmod113ROR:
+	cmp	al, 3
+	jnz	leftmod114ROR
+	lea	di,rgstr
+	mov	ax,'lb'
+	stosw
+	jmp	daleeROR11
 
+leftmod114ROR:
+	cmp	al, 4
+	jnz	leftmod115ROR
+	lea	di,rgstr
+	mov	ax,'ha'
+	stosw
+	jmp	daleeROR11
 
+leftmod115ROR:
+	cmp	al, 5
+	jnz	leftmod116ROR
+	lea	di,rgstr
+	mov	ax,'hc'
+	stosw
+	jmp	daleeROR11
 
+leftmod116ROR:
+	cmp	al, 6
+	jnz	leftmod117ROR
+	lea	di,rgstr
+	mov	ax,'hd'
+	stosw
+	jmp	daleeROR11
 
+leftmod117ROR:
+	cmp	al, 7
+	;jnz	leftmod118ROR
+	lea	di,rgstr
+	mov	ax,'hb'
+	stosw
+	jmp	daleeROR11
 
+;--------------------------------
+leftmod110RORax:
+	cmp	al, 0
+	jnz	leftmod111RORax
+	lea	di,rgstr
+	mov 	ax,'xa'
+	stosw
+	jmp	daleeROR11
 
+leftmod111RORax:
+	cmp	al, 1
+	jnz	leftmod112RORax
+	lea	di,rgstr
+	mov	ax,'xc'
+	stosw
+	jmp	daleeROR11
+
+leftmod112RORax:
+	cmp	al, 2
+	jnz	leftmod113RORax
+	lea	di,rgstr
+	mov	ax,'xd'
+	stosw
+	jmp	daleeROR11
+
+leftmod113RORax:
+	cmp	al, 3
+	jnz	leftmod114RORax
+	lea	di,rgstr
+	mov	ax,'xb'
+	stosw
+	jmp	daleeROR11
+
+leftmod114RORax:
+	cmp	al, 4
+	jnz	leftmod115RORax
+	lea	di,rgstr
+	mov	ax,'ps'
+	stosw
+	jmp	daleeROR11
+
+leftmod115RORax:
+	cmp	al, 5
+	jnz	leftmod116RORax
+	lea	di,rgstr
+	mov	ax,'pb'
+	stosw
+	jmp	daleeROR11
+
+leftmod116RORax:
+	cmp	al, 6
+	jnz	leftmod117RORax
+	lea	di,rgstr
+	mov	ax,'is'
+	stosw
+	jmp	daleeROR11
+
+leftmod117RORax:
+	cmp	al, 7
+	;jnz	leftmod118RORax
+	lea	di,rgstr
+	mov	ax,'id'
+	stosw
+	jmp	daleeROR11
+;--------------------------
+daleeROR11:
+	pusha
+	lea	dx,_ROR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+	
+	mov	al,[si-2]
+	cmp	al,0D0h
+	jz	metka1ROR11
+
+	cmp	al,0D1h
+	jz	metka2ROR11
+
+	cmp	al,0D2h
+	jz	metka3ROR11
+
+	cmp	al,0D3h
+	jz	metka4ROR11
+
+metka1ROR11:
+	jmp	finish11ROR_D0
+
+metka2ROR11:
+	jmp	finish11ROR_D1
+
+metka3ROR11:
+	;jmp	finishROR_D2
+
+metka4ROR11:
+	;jmp	finishROR_D3
+;-------------------------------
+daleeROR00:
+	pusha
+	lea	dx,_ROR
+	mov	cx,5
+	call	VIVOD_ZNACH
+	popa
+	
+	mov	al,[si-2]
+	cmp	al,0D0h
+	jz	metka1ROR00
+
+	cmp	al,0D1h
+	jz	metka2ROR00
+
+	cmp	al,0D2h
+	jz	metka3ROR00
+
+	cmp	al,0D3h
+	jz	metka4ROR00
+
+metka1ROR00:
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	jz	askaROR01
+	cmp	al,2
+	jz	askaROR01	
+	jmp	finish00ROR_D0
+;-----------------------
+askaROR01:
+	jmp	rorAska0mem
+;-----------------------
+metka2ROR00:
+	;jmp	finishROR_D1
+
+metka3ROR00:
+	;jmp	finishROR_D2
+
+metka4ROR00:
+	;jmp	finishROR_D3
+
+;----------------------------------
+rorAska0mem:
+	lodsb
+	mov	bl,al
+	shr	al,4
+	cmp	al,0
+	jnz	rorAska1mem
+	lea	di,rgstr2askin
+	mov 	ax,48
+	stosb
+	jmp	contmemROR
+
+rorAska1mem:
+	cmp	al,1
+	jnz	rorAska2mem
+	lea	di,rgstr2askin
+	mov 	ax,49
+	stosb
+	jmp	contmemROR
+
+rorAska2mem:
+	cmp	al,2
+	jnz	rorAska3mem
+	lea	di,rgstr2askin
+	mov 	ax,50
+	stosb
+	jmp	contmemROR
+
+rorAska3mem:
+	cmp	al,3
+	jnz	rorAska4mem
+	lea	di,rgstr2askin
+	mov 	ax,51
+	stosb
+	jmp	contmemROR
+
+rorAska4mem:
+	cmp	al,4
+	jnz	rorAska5mem
+	lea	di,rgstr2askin
+	mov 	bx,52
+	stosb
+	jmp	contmemROR
+
+rorAska5mem:
+	cmp	al,5
+	jnz	rorAska6mem
+	lea	di,rgstr2askin
+	mov 	ax,53
+	stosb
+	jmp	contmemROR
+
+rorAska6mem:
+	cmp	al,6
+	jnz	rorAska7mem
+	lea	di,rgstr2askin
+	mov 	ax,54
+	stosb
+	jmp	contmemROR
+
+rorAska7mem:
+	cmp	al,7
+	jnz	rorAska8mem
+	lea	di,rgstr2askin
+	mov 	ax,55
+	stosb
+	jmp	contmemROR
+
+rorAska8mem:
+	cmp	al,8
+	jnz	rorAska9mem
+	lea	di,rgstr2askin
+	mov 	ax,56
+	stosb
+	jmp	contmemROR
+
+rorAska9mem:
+	cmp	al,9
+	jnz	rorAskaAmem
+	lea	di,rgstr2askin
+	mov 	ax,57
+	stosb
+	jmp	contmemROR
+
+rorAskaAmem:
+	cmp	al,10
+	jnz	rorAskaBmem
+	lea	di,rgstr2askin
+	mov 	ax,65
+	stosb
+	jmp	contmemROR
+
+rorAskaBmem:
+	cmp	al,11
+	jnz	rorAskaCmem
+	lea	di,rgstr2askin
+	mov 	ax,66
+	stosb
+	jmp	contmem
+
+rorAskaCmem:
+	cmp	al,12
+	jnz	rorAskaDmem
+	lea	di,rgstr2askin
+	mov 	ax,67
+	stosb
+	jmp	contmemROR
+
+rorAskaDmem:
+	cmp	al,13
+	jnz	rorAskaEmem
+	lea	di,rgstr2askin
+	mov 	ax,68
+	stosb
+	jmp	contmemROR
+
+rorAskaEmem:
+	cmp	al,14
+	jnz	rorAskaFmem
+	lea	di,rgstr2askin
+	mov 	ax,69
+	stosb
+	jmp	contmemROR
+
+rorAskaFmem:
+	cmp	al,15
+	jnz	contmemROR
+	lea	di,rgstr2askin
+	mov 	ax,70
+	stosb
+	jmp	contmemROR
+;--------------------------------------contMEM
+contmemROR:
+	shl	bl,4
+	mov	al,bl
+	cmp	al,0
+	jnz	rorAska01mem
+	lea	di,rgstr3askin
+	mov 	ax,48
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska01mem:
+	cmp	al,16
+	jnz	rorAska02mem
+	lea	di,rgstr3askin
+	mov 	ax,49
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska02mem:
+	cmp	al,32
+	jnz	rorAska03mem
+	lea	di,rgstr3askin
+	mov 	ax,50
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska03mem:
+	cmp	al,48
+	jnz	rorAska04mem
+	lea	di,rgstr3askin
+	mov 	ax,51
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska04mem:
+	cmp	al,64
+	jnz	rorAska05mem
+	lea	di,rgstr3askin
+	mov 	ax,52
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska05mem:
+	cmp	al,80
+	jnz	rorAska06mem
+	lea	di,rgstr3askin
+	mov 	ax,53
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska06mem:
+	cmp	al,96
+	jnz	rorAska07mem
+	lea	di,rgstr3askin
+	mov 	ax,54
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska07mem:
+	cmp	al,112
+	jnz	rorAska08mem
+	lea	di,rgstr3askin
+	mov 	ax,55
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska08mem:
+	cmp	al,128
+	jnz	rorAska09mem
+	lea	di,rgstr3askin
+	mov 	ax,56
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska09mem:
+	cmp	al,144
+	jnz	rorAska0Amem
+	lea	di,rgstr3askin
+	mov 	ax,57
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Amem:
+	cmp	al,160
+	jnz	rorAska0Bmem
+	lea	di,rgstr3askin
+	mov 	ax,65
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Bmem:
+	cmp	al,176
+	jnz	rorAska0Cmem
+	lea	di,rgstr3askin
+	mov 	ax,66
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Cmem:
+	cmp	al,192
+	jnz	rorAska0Dmem
+	lea	di,rgstr3askin
+	mov 	ax,67
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Dmem:
+	cmp	al,208
+	jnz	rorAska0Emem
+	lea	di,rgstr3askin
+	mov 	ax,68
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Emem:
+	cmp	al,224
+	jnz	rorAska0Fmem
+	lea	di,rgstr3askin
+	mov 	ax,69
+	stosb
+	jmp	finishAskamemROR_D0
+
+rorAska0Fmem:
+	cmp	al,240
+	lea	di,rgstr3askin
+	mov 	ax,70
+	stosb
+	jmp	finishAskamemROR_D0
+
+;------------------------------
+finish11ROR_D0:
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+;-------------------------------
+finish11ROR_D1:
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+;------------------------------
+finish00ROR_D0:
+	mov	al,[si-1]
+	and	al,4
+	cmp	al,4
+	jz	inskl_finish00ROR_D0
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+inskl_finish00ROR_D0:
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finishAskamemROR_D0:
+	mov	al,[si+1]
+	cmp	al,0D0h
+	je	contWROR_D0
+	mov	al,[si-2]
+	and	al,4
+	cmp	al,4
+	jz	iskl_finishAskamemROR_D0
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+contWROR_D0:	
+	jmp	askamemcont
+
+iskl_finishAskamemROR_D0:
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finishAskamemWROR_D0:
+	mov	al,[si-3]
+	and	al,4
+	cmp	al,4
+	je	iskl_finishAskamemWROR_D0
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,edin
+	mov	cx,2
+	call	VIVOD_ZNACH	
+	jmp	nachalo
+
+iskl_finishAskamemWROR_D0:
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea	dx,edin
+	mov	cx,2
+	call	VIVOD_ZNACH	
+	jmp	nachalo
 
 end start
