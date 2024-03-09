@@ -25,6 +25,7 @@ plus		db	'+', '$'
 edin		db	'1', 13,10, '$'
 BYTE_PTR	db	'byte ', 'ptr ', '$'
 WORD_PTR	db	'word ', 'ptr ', '$'
+perCL		db	'cl',13,10, '$'
 .code
 start:
 	mov 	ax,@data
@@ -70,10 +71,10 @@ nachalo:
 	cmp	al, 0D3h
 	jz	microROR
 
-	cmp	al, 0C1h
+	cmp	al, 0C0h
 	jz	microROR
 
-	cmp	al, 0C2h
+	cmp	al, 0C1h
 	jz	microROR
 
 	cmp	al, 0Fh
@@ -1287,6 +1288,15 @@ finish00withoutplus:
 	jmp	nachalo
 
 askaBA16:
+	mov	al,[si-3]
+	cmp	al,0C0h
+	je	RORC0
+	mov	al,[si-4]
+	cmp	al,0C0h
+	je	RORC0MB
+	mov	al,[si-5]
+	cmp	al,0C0h
+	je	RORC0MW
 	mov	al,[si-4]
 	cmp	al,0BAh
 	je	contaskaBA16
@@ -1317,13 +1327,29 @@ contaskaBA16:
 	mov 	cx,3
 	call 	VIVOD_ZNACH
 	jmp	nachalo
+;----------------------------------
+RORC0:
+	mov	al,[si-2]
+	shr	al,6
+	cmp	al,0
+	je	metkfinish00RORC0
+	jmp	finish11RORC0
+;----------------------------------
+RORC0MB:
+	jmp	finish01RORC0
+;----------------------------------
+RORC0MW:
+	jmp	finish10RORC0
 ;----------------------------------16bitAsk
 returnAska8:
 	jmp	askaBA1601
 ;----------------------------------32bitAsk
 returnAska16:
 	jmp	finishAskamemW2
-
+;----------------------------------
+metkfinish00RORC0:
+	jmp	finish00RORC0
+;----------------------------------
 aska000mod:
 	mov	al,[si-2]
 	and	al,4
@@ -2024,12 +2050,12 @@ _ROR1:
 check1ROR1:
 	cmp	bh,1
 	jnz	check1ROR2
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check1ROR2:
 	cmp	bh,2
 	jnz	check1ROR3
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check1ROR3:
 	cmp	bh,3
@@ -2057,21 +2083,21 @@ _ROR2:
 
 	cmp	bh,0
 	jnz	check2ROR1
-	;jmp	leftmod000
+	jmp	leftmod000ROR
 
 check2ROR1:
 	cmp	bh,1
 	jnz	check2ROR2
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check2ROR2:
 	cmp	bh,2
 	jnz	check2ROR3
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check2ROR3:
 	cmp	bh,3
-	;jmp	b0
+	jmp	leftmod110ROR
 
 ;-----------------------
 _ROR3:
@@ -2095,26 +2121,25 @@ _ROR3:
 
 	cmp	bh,0
 	jnz	check3ROR1
-	;jmp	leftmod000
+	jmp	leftmod000ROR
 
 check3ROR1:
 	cmp	bh,1
 	jnz	check3ROR2
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check3ROR2:
 	cmp	bh,2
 	jnz	check3ROR3
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check3ROR3:
 	cmp	bh,3
-	;jmp	b0
-	;jmp	b0
+	jmp	leftmod110RORax
 
 ;---------------------------
 _ROR4:
-	cmp	al, 0C1h
+	cmp	al, 0C0h
 	jnz	_ROR5
 
 	sar	al,1
@@ -2134,25 +2159,24 @@ _ROR4:
 
 	cmp	bh,0
 	jnz	check4ROR1
-	;jmp	leftmod000
+	jmp	leftmod000ROR
 
 check4ROR1:
 	cmp	bh,1
 	jnz	check4ROR2
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check4ROR2:
 	cmp	bh,2
 	jnz	check4ROR3
-	;jmp	leftmod010
+	jmp	leftmod010ROR
 
 check4ROR3:
 	cmp	bh,3
-	;jmp	b0
+	jmp	leftmod110ROR
 
 ;-------------------------
 _ROR5:
-
 	sar	al,1
 	rcl	ah,1
 
@@ -2196,7 +2220,7 @@ leftmod000ROR:
 	lea	di,rgstrsec
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod001ROR:
 	cmp	al,1
@@ -2207,7 +2231,7 @@ leftmod001ROR:
 	lea	di,rgstrsec
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod002ROR:
 	cmp	al,2
@@ -2218,7 +2242,7 @@ leftmod002ROR:
 	lea	di,rgstrsec
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod003ROR:
 	cmp	al,3
@@ -2229,7 +2253,7 @@ leftmod003ROR:
 	lea	di,rgstrsec
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod004ROR:
 	cmp	al,4
@@ -2237,7 +2261,7 @@ leftmod004ROR:
 	lea	di,rgstrfir
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod005ROR:
 	cmp	al,5
@@ -2245,7 +2269,7 @@ leftmod005ROR:
 	lea	di,rgstrfir
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod006ROR:
 	cmp	al,7
@@ -2253,7 +2277,7 @@ leftmod006ROR:
 	lea	di,rgstrfir
 	mov	ax,'xb'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 ;-------------------------------
 leftmod010ROR:
 	cmp	al,0
@@ -2264,7 +2288,7 @@ leftmod010ROR:
 	lea	di,rgstrsec
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod011ROR:
 	cmp	al,1
@@ -2275,7 +2299,7 @@ leftmod011ROR:
 	lea	di,rgstrsec
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod012ROR:
 	cmp	al,2
@@ -2286,7 +2310,7 @@ leftmod012ROR:
 	lea	di,rgstrsec
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod013ROR:
 	cmp	al,3
@@ -2297,7 +2321,7 @@ leftmod013ROR:
 	lea	di,rgstrsec
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod014ROR:
 	cmp	al,4
@@ -2305,7 +2329,7 @@ leftmod014ROR:
 	lea	di,rgstrfir
 	mov	ax,'is'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod015ROR:
 	cmp	al,5
@@ -2313,7 +2337,7 @@ leftmod015ROR:
 	lea	di,rgstrfir
 	mov	ax,'id'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod016ROR:
 	cmp	al,6
@@ -2321,7 +2345,7 @@ leftmod016ROR:
 	lea	di,rgstrfir
 	mov	ax,'pb'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 leftmod017ROR:
 	cmp	al,7
@@ -2329,7 +2353,7 @@ leftmod017ROR:
 	lea	di,rgstrfir
 	mov	ax,'xb'
 	stosw
-	jmp	daleeROR00
+	jmp	dalee00ROR
 
 
 ;---------------------------
@@ -2482,6 +2506,9 @@ daleeROR11:
 	cmp	al,0D3h
 	jz	metka4ROR11
 
+	cmp	al,0C0h
+	jz	metka5ROR11
+
 metka1ROR11:
 	jmp	finish11ROR_D0
 
@@ -2489,12 +2516,15 @@ metka2ROR11:
 	jmp	finish11ROR_D1
 
 metka3ROR11:
-	;jmp	finishROR_D2
+	jmp	finish11ROR_D2
 
 metka4ROR11:
-	;jmp	finishROR_D3
+	jmp	finish11ROR_D3
+
+metka5ROR11:
+	jmp	postAska1
 ;-------------------------------
-daleeROR00:
+dalee00ROR:
 	pusha
 	lea	dx,_ROR
 	mov	cx,5
@@ -2514,26 +2544,56 @@ daleeROR00:
 	cmp	al,0D3h
 	jz	metka4ROR00
 
+	cmp	al,0C0h
+	jz	metka5ROR00
+
 metka1ROR00:
 	mov	al,[si-1]
 	shr	al,6
 	cmp	al,1
-	jz	askaROR01
+	je	askaROR01
 	cmp	al,2
-	jz	askaROR01	
+	je	askaROR01	
 	jmp	finish00ROR_D0
 ;-----------------------
 askaROR01:
 	jmp	rorAska0mem
 ;-----------------------
 metka2ROR00:
-	;jmp	finishROR_D1
-
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	je	askaROR01
+	cmp	al,2
+	je	askaROR01
+	jmp	finish00ROR_D1
+;--------------------------
 metka3ROR00:
-	;jmp	finishROR_D2
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	je	askaROR01
+	cmp	al,2
+	je	askaROR01
+	jmp	finish00ROR_D2
 
 metka4ROR00:
-	;jmp	finishROR_D3
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	je	askaROR01
+	cmp	al,2
+	je	askaROR01
+	jmp	finish00ROR_D3
+;------------------------------
+metka5ROR00:
+	mov	al,[si-1]
+	shr	al,6
+	cmp	al,1
+	je	askaROR01
+	cmp	al,2
+	je	askaROR01
+	jmp	postAska1
 
 ;----------------------------------
 rorAska0mem:
@@ -2815,6 +2875,208 @@ finish11ROR_D1:
 	call 	VIVOD_ZNACH
 	jmp	nachalo
 ;------------------------------
+finish11ROR_D2:
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+;------------------------------
+finish11ROR_D3:
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finish11RORC0:
+	lea	dx,rgstr
+	mov	cx,4
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call 	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+;------------------------------
+finish00RORC0:
+	mov	al,[si-2]
+	and	al,4
+	cmp	al,4
+	;jz	inskl_finish00ROR_D3
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call 	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+
+finish00ROR_D3:
+	mov	al,[si-1]
+	and	al,4
+	cmp	al,4
+	jz	inskl_finish00ROR_D3
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+inskl_finish00ROR_D3:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finish00ROR_D2:
+	mov	al,[si-1]
+	and	al,4
+	cmp	al,4
+	jz	inskl_finish00ROR_D2
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+inskl_finish00ROR_D2:
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+
+finish00ROR_D1:
+	mov	al,[si-1]
+	and	al,4
+	cmp	al,4
+	jz	inskl_finish00ROR_D1
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+inskl_finish00ROR_D1:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,edin
+	mov 	cx,2
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+;------------------------------
 finish00ROR_D0:
 	mov	al,[si-1]
 	and	al,4
@@ -2862,16 +3124,48 @@ inskl_finish00ROR_D0:
 	jmp	nachalo
 
 finishAskamemROR_D0:
-	mov	al,[si+1]
+	mov	al,[si-3]
 	cmp	al,0D0h
-	je	contWROR_D0
+	je	_BYTE
+	cmp	al,0D1h
+	je	_WORD
+	cmp	al,0D2h
+	je	_BYTE
+	cmp	al,0D3h
+	je	_WORD
+	cmp	al,0C0h
+	je	_BYTE
+
+_BYTE:
+	lea	dx,BYTE_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	mov	al,[si-2]
+	shr	al,6
+	cmp	al,2
+	je	contWROR
+	jmp	finishAskamemRORcont
+_WORD:
+	lea	dx,WORD_PTR
+	mov	cx,9
+	call	VIVOD_ZNACH
+	mov	al,[si-2]
+	shr	al,6
+	cmp	al,2
+	je	contWROR
+	jmp	finishAskamemRORcont
+
+contWROR:	
+	jmp	askamemcont
+
+finishAskamemRORcont:
+	mov	al,[si-3]
+	cmp	al,0C0h
+	je	contC0B
 	mov	al,[si-2]
 	and	al,4
 	cmp	al,4
 	jz	iskl_finishAskamemROR_D0
-	lea	dx,BYTE_PTR
-	mov	cx,9
-	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -2896,18 +3190,28 @@ finishAskamemROR_D0:
 	lea	dx,skobkaright
 	mov	cx,3
 	call	VIVOD_ZNACH
+	mov	al,[si-3]
+	cmp	al,0D2h
+	je	finishCL
+	mov	al,[si-3]
+	cmp	al,0D3h
+	je	finishCL	
 	lea 	dx,edin
 	mov 	cx,2
 	call 	VIVOD_ZNACH
 	jmp	nachalo
 
-contWROR_D0:	
-	jmp	askamemcont
+contC0B:
+	jmp	postAska1
+
+finishCL:
+	lea 	dx,perCL
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
 
 iskl_finishAskamemROR_D0:
-	lea	dx,BYTE_PTR
-	mov	cx,9
-	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -2930,15 +3234,18 @@ iskl_finishAskamemROR_D0:
 	mov 	cx,2
 	call 	VIVOD_ZNACH
 	jmp	nachalo
+;---------------------------
+contC0W:
+	jmp	postAska1
 
 finishAskamemWROR_D0:
+	mov	al,[si-4]
+	cmp	al,0C0h
+	je	contC0W
 	mov	al,[si-3]
 	and	al,4
 	cmp	al,4
 	je	iskl_finishAskamemWROR_D0
-	lea	dx,BYTE_PTR
-	mov	cx,9
-	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -2969,15 +3276,18 @@ finishAskamemWROR_D0:
 	lea	dx,skobkaright
 	mov	cx,3
 	call	VIVOD_ZNACH
+	mov	al,[si-4]
+	cmp	al,0D2h
+	je	finishWCL
+	mov	al,[si-4]
+	cmp	al,0D3h
+	je	finishWCL
 	lea	dx,edin
 	mov	cx,2
 	call	VIVOD_ZNACH	
 	jmp	nachalo
 
 iskl_finishAskamemWROR_D0:
-	lea	dx,BYTE_PTR
-	mov	cx,9
-	call	VIVOD_ZNACH
 	lea	dx,skobkaleft
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -3002,9 +3312,127 @@ iskl_finishAskamemWROR_D0:
 	lea	dx,skobkaright
 	mov	cx,3
 	call	VIVOD_ZNACH
+	mov	al,[si-4]
+	cmp	al,0D2h
+	je	finishWCL
+	mov	al,[si-4]
+	cmp	al,0D3h
+	je	finishWCL
 	lea	dx,edin
 	mov	cx,2
 	call	VIVOD_ZNACH	
 	jmp	nachalo
+
+finishWCL:
+	lea	dx,perCL
+	mov	cx,3
+	call	VIVOD_ZNACH
+	jmp	nachalo
+
+finish01RORC0:
+	mov	al,[si-3]
+	and	al,4
+	cmp	al,4
+	jz	iskl_finishAskamemROR_C0
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call 	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+iskl_finishAskamemROR_C0:
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call 	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+finish10RORC0:
+	lea	dx,skobkaleft
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrfir
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWL
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstraskWR
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH	
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call 	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+
+
 
 end start
