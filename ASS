@@ -3,7 +3,7 @@
 .stack 100h
 .data
 B 		db 	1024 DUP(?)
-A 		db 	'comfirst.com',0
+A 		db 	'comsec.com',0
 C 		db 	'vivod.asm',0
 _AAS		db 	9,'aas',13,10,'$'
 _BTR		db	9,'btr',9,'$'
@@ -1418,6 +1418,13 @@ aska000mod:
 	call 	VIVOD_ZNACH
 	jmp	nachalo
 
+metkfinishASKA00BA:
+	mov	al,[si-4]
+	shr	al,6
+	cmp	al,2
+	je	metkfinishASKA02BA
+	jmp	finishASKA00BA
+
 
 askaBA16:
 	mov	al,[si-3]
@@ -1441,7 +1448,7 @@ askaBA16:
 	je	metkfinishASKA00BA
 	mov	al,[si-4]
 	cmp	al,0BAh
-	je	metkfinishASKA00BA
+	je	metkfinishASKA01BA
 	shr	al,6
 	cmp	al,1
 	je	returnAska8
@@ -1449,10 +1456,11 @@ askaBA16:
 	je	returnAska16
 	jmp	finishBA16
 
-returnBA00:
+metkfinishASKA01BA:
+	jmp	aska001mod
 
-metkfinishASKA00BA:
-	jmp	finishASKA00BA
+metkfinishASKA02BA:
+	jmp	finishAskamemW2
 
 contaskaBA16:
 	mov	al,[si-3]
@@ -1517,6 +1525,9 @@ finishBA16:
 
 ;----------------------------------
 finishASKA00BA:
+	mov	al,[si-4]
+	and	al,4
+	je	finishASKA10BA
 	lea	dx,WORD_PTR
 	mov	cx,9
 	call	VIVOD_ZNACH
@@ -1549,6 +1560,9 @@ finishASKA00BA:
 	call 	VIVOD_ZNACH
 	jmp	nachalo
 
+finishASKA10BA:
+	jmp	finishAskamemW
+
 
 aska001mod:
 	lea	dx,WORD_PTR
@@ -1562,6 +1576,46 @@ aska001mod:
 	call	VIVOD_ZNACH
 	lea	dx,rgstrfir
 	mov	cx,2
+	call	VIVOD_ZNACH
+	mov	al,[si-3]
+	and	al,4
+	cmp	al,4
+	je	isklaska001mod
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea	dx,rgstrsec
+	mov	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
+	call	VIVOD_ZNACH
+	lea	dx,skobkaright
+	mov	cx,3
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2ask
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3ask
+	mov 	cx,3
+	call 	VIVOD_ZNACH
+	jmp	nachalo
+
+isklaska001mod:
+	lea	dx,plus
+	mov	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr2askin
+	mov 	cx,1
+	call	VIVOD_ZNACH
+	lea 	dx,rgstr3askin
+	mov 	cx,2
 	call	VIVOD_ZNACH
 	lea	dx,skobkaright
 	mov	cx,3
@@ -2126,12 +2180,12 @@ finishAskamemW2:
 	call	VIVOD_ZNACH
 	lea	dx,rgstrfir
 	mov	cx,2
+	call	VIVOD_ZNACH
 	mov	al,[si-4]
 	mov	ah,al
 	and	al,4
 	cmp	al,4
 	je	finishAskamemW3
-	call	VIVOD_ZNACH
 	lea	dx,plus
 	mov	cx,1
 	call	VIVOD_ZNACH
@@ -2167,6 +2221,7 @@ finishAskamemW2:
 finishAskamemW3:
 	lea	dx,plus
 	mov	cx,1
+	call	VIVOD_ZNACH
 	lea 	dx,rgstraskWL
 	mov 	cx,1
 	call	VIVOD_ZNACH
@@ -2219,6 +2274,8 @@ finishAskamem00BTR_B3:
 	mov	cx,4
 	call	VIVOD_ZNACH	
 	jmp	nachalo
+
+
 
 ;---------------------------------BYTEROR1
 _RORr:
